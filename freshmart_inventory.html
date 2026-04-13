@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FreshMart — Inventory Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px}
+
+/* ===== THEME ===== */
+:root{
+  --bg:#f5f7f2;
+  --surface:#ffffff;
+  --surface2:#f0f4ec;
+  --surface3:#e6eddf;
+  --border:#dde8d4;
+  --border2:#c8dab8;
+  --text:#1a2e14;
+  --text2:#5a7050;
+  --text3:#9ab088;
+  --green:#2d8a4e;
+  --green-light:#e8f5ed;
+  --green-mid:#a8d5b5;
+  --accent:#3a7d44;
+  --accent2:#4e9e5a;
+  --accent-glow:rgba(58,125,68,0.15);
+  --red:#c0392b;
+  --red-light:#fdecea;
+  --amber:#c47d0e;
+  --amber-light:#fef6e4;
+  --blue:#2563ab;
+  --blue-light:#eff4ff;
+  --purple:#6d3fa0;
+  --purple-light:#f3eeff;
+  --orange:#d4620a;
+  --orange-light:#fff0e6;
+  --sidebar-w:232px;
+  --topbar-h:58px;
+  --radius:12px;
+  --radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:10px}
+
+/* ===== LOGIN ===== */
+#loginPage{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1000;
+  background:linear-gradient(135deg,#1a3d20 0%,#2d6e3a 50%,#1a3d20 100%);
+  transition:opacity .4s
+}
+.login-bg-pattern{
+  position:absolute;inset:0;
+  background-image:radial-gradient(circle at 20% 80%,rgba(255,255,255,0.04) 0%,transparent 50%),
+    radial-gradient(circle at 80% 20%,rgba(255,255,255,0.04) 0%,transparent 50%);
+}
+.login-leaves{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.leaf{position:absolute;opacity:0.06;font-size:80px}
+.login-box{
+  position:relative;width:420px;padding:44px 42px;background:white;
+  border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,0.3)
+}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.login-logo-icon{
+  width:44px;height:44px;background:var(--accent);border-radius:12px;
+  display:flex;align-items:center;justify-content:center
+}
+.login-logo-icon svg{width:24px;height:24px;fill:white}
+.login-brand{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-.4px}
+.login-brand span{color:var(--accent2)}
+.login-tagline{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.08em;margin-top:1px}
+.login-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--text2);margin-bottom:28px}
+.login-roles{display:flex;gap:6px;margin-bottom:22px}
+.role-chip{
+  flex:1;padding:8px 6px;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  text-align:center;cursor:pointer;font-size:12px;font-weight:500;color:var(--text2);
+  transition:all .15s
+}
+.role-chip.active{border-color:var(--accent);background:var(--green-light);color:var(--accent)}
+.form-label{font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.form-input{
+  width:100%;padding:11px 13px;background:#f8faf6;border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;outline:none;transition:border .2s;margin-bottom:14px
+}
+.form-input:focus{border-color:var(--accent);background:white;box-shadow:0 0 0 3px var(--accent-glow)}
+.form-input::placeholder{color:var(--text3)}
+.login-btn{
+  width:100%;padding:13px;background:var(--accent);border:none;border-radius:var(--radius-sm);
+  color:white;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:600;
+  cursor:pointer;transition:all .2s;margin-top:4px
+}
+.login-btn:hover{background:var(--accent2);box-shadow:0 6px 20px var(--accent-glow)}
+.login-error{color:var(--red);font-size:12px;margin-top:8px;background:var(--red-light);padding:8px 12px;border-radius:6px;display:none}
+.login-hint{font-size:12px;color:var(--text3);text-align:center;margin-top:18px}
+.login-hint b{color:var(--text2)}
+.login-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text3);font-size:12px}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ===== APP SHELL ===== */
+#app{display:none;height:100vh}
+#app.visible{display:flex}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:var(--sidebar-w);background:var(--text);display:flex;flex-direction:column;
+  flex-shrink:0;overflow-y:auto
+}
+.sb-logo{padding:18px 18px 14px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px}
+.sb-logo-icon{width:34px;height:34px;background:var(--accent2);border-radius:9px;display:flex;align-items:center;justify-content:center}
+.sb-logo-icon svg{width:18px;height:18px;fill:white}
+.sb-brand{font-size:17px;font-weight:700;color:white;letter-spacing:-.3px}
+.sb-brand span{color:#7fd98c}
+.sb-version{font-size:10px;color:rgba(255,255,255,0.3);margin-top:1px}
+.sb-section{padding:18px 16px 5px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.3);letter-spacing:.1em;text-transform:uppercase}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:9px 16px;margin:1px 8px;
+  border-radius:var(--radius-sm);font-size:13px;font-weight:500;color:rgba(255,255,255,0.55);
+  cursor:pointer;transition:all .15s;position:relative
+}
+.nav-item:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85)}
+.nav-item.active{background:rgba(127,217,140,0.15);color:#7fd98c}
+.nav-item.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:#7fd98c;border-radius:2px}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.nav-badge{
+  margin-left:auto;font-size:10px;font-weight:700;padding:2px 7px;
+  border-radius:20px;background:rgba(192,57,43,0.3);color:#ff8a7a
+}
+.sb-footer{margin-top:auto;padding:14px 16px;border-top:1px solid rgba(255,255,255,0.08)}
+.sb-user{display:flex;align-items:center;gap:10px}
+.sb-avatar{
+  width:34px;height:34px;border-radius:50%;background:var(--accent2);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0
+}
+.sb-uname{font-size:13px;font-weight:600;color:rgba(255,255,255,0.9)}
+.sb-urole{font-size:11px;color:rgba(255,255,255,0.4)}
+.sb-logout{margin-left:auto;color:rgba(255,255,255,0.3);cursor:pointer;transition:color .15s}
+.sb-logout:hover{color:#ff8a7a}
+
+/* ===== MAIN ===== */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.topbar{
+  height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 22px;gap:14px;flex-shrink:0;box-shadow:var(--shadow)
+}
+.topbar-title{font-size:16px;font-weight:700;color:var(--text);flex:1}
+.tb-search{
+  display:flex;align-items:center;gap:8px;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);padding:7px 12px;width:220px
+}
+.tb-search input{background:transparent;border:none;outline:none;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;width:100%}
+.tb-search input::placeholder{color:var(--text3)}
+.tb-search svg{width:14px;height:14px;fill:var(--text3);flex-shrink:0}
+.tb-btn{
+  padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;
+  border:1.5px solid var(--border2);background:transparent;color:var(--text2);
+  font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s
+}
+.tb-btn:hover{background:var(--surface2);border-color:var(--accent);color:var(--accent)}
+.tb-btn.primary{background:var(--accent);border-color:var(--accent);color:white}
+.tb-btn.primary:hover{background:var(--accent2)}
+
+.content{flex:1;overflow-y:auto;padding:22px}
+.page{display:none}
+.page.active{display:block;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== KPI CARDS ===== */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.kpi-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden
+}
+.kpi-card::after{
+  content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:50%;
+  background:var(--accent-glow);transform:translate(30px,-30px)
+}
+.kpi-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.kpi-icon svg{width:18px;height:18px}
+.kpi-label{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:4px}
+.kpi-value{font-size:26px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;line-height:1}
+.kpi-delta{font-size:11px;margin-top:6px;font-weight:500}
+.up{color:var(--green)}.down{color:var(--red)}.warn{color:var(--amber)}
+
+/* ===== CHART CARDS ===== */
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.chart-hdr{display:flex;align-items:center;margin-bottom:14px}
+.chart-hdr h3{font-size:14px;font-weight:700;color:var(--text);flex:1}
+.chart-sub{font-size:11px;color:var(--text3);font-weight:500}
+
+/* ===== TABLE ===== */
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.table-toolbar{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tbl-input{
+  padding:8px 12px;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:13px;outline:none;transition:border .2s
+}
+.tbl-input:focus{border-color:var(--accent)}
+.tbl-select{
+  padding:8px 12px;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px
+}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{
+  padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text2);
+  background:var(--surface2);text-transform:uppercase;letter-spacing:.06em;
+  border-bottom:1px solid var(--border);white-space:nowrap
+}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--surface2)}
+.mono{font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)}
+.table-footer{
+  padding:12px 18px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center
+}
+
+/* ===== BADGES ===== */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.b-green{background:var(--green-light);color:var(--green)}
+.b-red{background:var(--red-light);color:var(--red)}
+.b-amber{background:var(--amber-light);color:var(--amber)}
+.b-blue{background:var(--blue-light);color:var(--blue)}
+.b-purple{background:var(--purple-light);color:var(--purple)}
+.b-orange{background:var(--orange-light);color:var(--orange)}
+.b-grey{background:var(--surface3);color:var(--text2)}
+
+/* ===== PROGRESS ===== */
+.prog-wrap{background:var(--surface3);border-radius:4px;height:6px;overflow:hidden;min-width:80px}
+.prog-fill{height:100%;border-radius:4px;transition:width .4s ease}
+
+/* ===== SECTION HDR ===== */
+.sec-hdr{display:flex;align-items:center;margin-bottom:16px;gap:10px;flex-wrap:wrap}
+.sec-hdr h2{font-size:18px;font-weight:700;color:var(--text);flex:1}
+.sec-sub{font-size:12px;color:var(--text2);font-weight:500}
+
+/* ===== TABS ===== */
+.tabs{display:flex;gap:2px;background:var(--surface2);padding:3px;border-radius:var(--radius-sm);width:fit-content}
+.tab{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s}
+.tab.active{background:var(--surface);color:var(--accent);font-weight:600;box-shadow:var(--shadow)}
+
+/* ===== OUTLET CARDS ===== */
+.outlet-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.outlet-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px;box-shadow:var(--shadow);transition:border-color .2s
+}
+.outlet-card:hover{border-color:var(--accent)}
+.outlet-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.outlet-num{
+  width:38px;height:38px;border-radius:10px;background:var(--green-light);
+  display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--accent)
+}
+.outlet-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.outlet-loc{font-size:11px;color:var(--text2)}
+.outlet-stat{display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px}
+.outlet-stat span:first-child{color:var(--text2)}
+.outlet-stat span:last-child{font-weight:600;color:var(--text)}
+.outlet-footer{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:14px;padding-top:12px;border-top:1px solid var(--border)
+}
+
+/* ===== ALERT CARDS ===== */
+.alert-card{
+  display:flex;align-items:flex-start;gap:12px;padding:14px 16px;
+  border-radius:var(--radius-sm);margin-bottom:10px;border-left:3px solid
+}
+.alert-red{background:var(--red-light);border-left-color:var(--red)}
+.alert-amber{background:var(--amber-light);border-left-color:var(--amber)}
+.alert-green{background:var(--green-light);border-left-color:var(--green)}
+.alert-icon-wrap{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-red{background:var(--red);} .ai-amber{background:var(--amber);} .ai-green{background:var(--green);}
+.alert-icon-wrap svg{width:15px;height:15px;fill:white}
+.alert-title{font-size:13px;font-weight:700;color:var(--text)}
+.alert-body{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.5}
+.alert-time{font-size:11px;color:var(--text3);margin-top:6px;font-family:'DM Mono',monospace}
+
+/* ===== REPORT CARDS ===== */
+.report-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;box-shadow:var(--shadow);cursor:pointer;transition:all .2s
+}
+.report-card:hover{border-color:var(--accent);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.report-emoji{font-size:30px;margin-bottom:12px}
+.report-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.report-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.report-cta{font-size:12px;color:var(--accent);font-weight:600;margin-top:12px}
+
+/* ===== LIVE DOT ===== */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 2s infinite;margin-right:5px}
+
+@media(max-width:980px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .outlet-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  .kpi-grid,.grid-2,.grid-3,.outlet-grid{grid-template-columns:1fr}
+  .sidebar{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ======== LOGIN ======== -->
+<div id="loginPage">
+  <div class="login-bg-pattern"></div>
+  <div class="login-leaves">
+    <span class="leaf" style="top:10%;left:5%">🌿</span>
+    <span class="leaf" style="top:70%;left:8%">🍃</span>
+    <span class="leaf" style="top:20%;right:6%">🌱</span>
+    <span class="leaf" style="top:75%;right:9%">🍀</span>
+    <span class="leaf" style="top:45%;left:2%">🌾</span>
+    <span class="leaf" style="top:50%;right:4%">🌾</span>
+  </div>
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm-1 14.5v-9l6.5 4.5-6.5 4.5z"/></svg>
+      </div>
+      <div>
+        <div class="login-brand">Fresh<span>Mart</span></div>
+        <div class="login-tagline">Inventory Management System</div>
+      </div>
+    </div>
+    <div class="login-title">Welcome back 👋</div>
+    <div class="login-sub">Sign in to your manager portal</div>
+    <div class="login-roles">
+      <div class="role-chip active" onclick="setRole(this,'Store Manager')">Store Manager</div>
+      <div class="role-chip" onclick="setRole(this,'Supervisor')">Supervisor</div>
+      <div class="role-chip" onclick="setRole(this,'Viewer')">Viewer</div>
+    </div>
+    <label class="form-label">Email Address</label>
+    <input class="form-input" type="email" id="loginEmail" placeholder="manager@freshmart.in" value="manager@freshmart.in"/>
+    <label class="form-label">Password</label>
+    <input class="form-input" type="password" id="loginPass" placeholder="••••••••" value="freshmart2025"/>
+    <div id="loginErr" class="login-error">Incorrect email or password. Please try again.</div>
+    <button class="login-btn" onclick="doLogin()">Sign In to FreshMart</button>
+    <div class="login-hint">Demo: <b>manager@freshmart.in</b> / <b>freshmart2025</b></div>
+  </div>
+</div>
+
+<!-- ======== APP ======== -->
+<div id="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm-1 14.5v-9l6.5 4.5-6.5 4.5z"/></svg>
+      </div>
+      <div>
+        <div class="sb-brand">Fresh<span>Mart</span></div>
+        <div class="sb-version">v2.4.1 · Manager Portal</div>
+      </div>
+    </div>
+    <div class="sb-section">Main Menu</div>
+    <div class="nav-item active" onclick="goTo('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="goTo('inventory',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6c0-1.1-.9-2-2-2zm-5 11H4v-2h11v2zm3-4H4V9h14v2z"/></svg>
+      Inventory
+      <span class="nav-badge" id="invBadge">3</span>
+    </div>
+    <div class="nav-item" onclick="goTo('purchasing',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18a2 2 0 100 4 2 2 0 000-4zm-7-16v2h2l3.6 7.59-1.35 2.45A2 2 0 007 17h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0019.96 4H5.21l-.94-2H0zm16 14a2 2 0 100 4 2 2 0 000-4z"/></svg>
+      Purchasing
+    </div>
+    <div class="nav-item" onclick="goTo('movement',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11h5l-3-4v3H4v2h12v3l4-4z"/></svg>
+      Stock Movement
+    </div>
+    <div class="nav-item" onclick="goTo('outlets',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+      Outlets
+    </div>
+    <div class="sb-section">Analytics</div>
+    <div class="nav-item" onclick="goTo('reports',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4zm2 2H5V5h14v14zm0-16H5c-1.11 0-2 .89-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
+      Reports
+    </div>
+    <div class="nav-item" onclick="goTo('alerts',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 002 2zm6-6V11c0-3.07-1.64-5.64-4.5-6.32V4a1.5 1.5 0 00-3 0v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+      Alerts
+      <span class="nav-badge">5</span>
+    </div>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar" id="sbAv">SM</div>
+        <div>
+          <div class="sb-uname" id="sbName">Store Manager</div>
+          <div class="sb-urole" id="sbRole">Store Manager</div>
+        </div>
+        <div class="sb-logout" onclick="doLogout()" title="Sign out">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="pageTitle">🌿 Dashboard</div>
+      <div class="tb-search">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" placeholder="Search products, POs…"/>
+      </div>
+      <button class="tb-btn" onclick="doExport()">↓ Export CSV</button>
+      <button class="tb-btn primary" onclick="goTo('purchasing',document.querySelector('[onclick*=purchasing]'))">+ New PO</button>
+    </div>
+
+    <div class="content">
+
+      <!-- =========== DASHBOARD =========== -->
+      <div id="page-dashboard" class="page active">
+        <div class="sec-hdr">
+          <h2>Dashboard Overview</h2>
+          <span class="sec-sub"><span class="live-dot"></span>Live · April 2025</span>
+          <select class="tbl-select" style="margin-left:auto" onchange="updateKPIs(this.value)">
+            <option>This Month</option><option>Last 30 Days</option><option>This Quarter</option>
+          </select>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:var(--green-light)">
+              <svg viewBox="0 0 24 24" fill="var(--green)"><path d="M20 4H4c-1.1 0-2 .9-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6c0-1.1-.9-2-2-2zm-5 11H4v-2h11v2zm3-4H4V9h14v2z"/></svg>
+            </div>
+            <div class="kpi-label">Total SKUs</div>
+            <div class="kpi-value" id="k1">1,482</div>
+            <div class="kpi-delta up">▲ 32 new this month</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:var(--blue-light)">
+              <svg viewBox="0 0 24 24" fill="var(--blue)"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+            </div>
+            <div class="kpi-label">Total Stock Value</div>
+            <div class="kpi-value" id="k2">₹52.4L</div>
+            <div class="kpi-delta up">▲ 7.3% vs last month</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:var(--amber-light)">
+              <svg viewBox="0 0 24 24" fill="var(--amber)"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+            </div>
+            <div class="kpi-label">Low Stock Alerts</div>
+            <div class="kpi-value warn" id="k3">42</div>
+            <div class="kpi-delta warn">⚠ Reorder needed</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:var(--red-light)">
+              <svg viewBox="0 0 24 24" fill="var(--red)"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            </div>
+            <div class="kpi-label">Out of Stock</div>
+            <div class="kpi-value down" id="k4">9</div>
+            <div class="kpi-delta down">▼ 4 new today</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="chart-card">
+            <div class="chart-hdr"><h3>📈 Stock Value Trend</h3><span class="chart-sub">6 months</span></div>
+            <div style="position:relative;height:200px"><canvas id="cDashLine"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-hdr"><h3>🏷️ Category Split</h3><span class="chart-sub">By stock value</span></div>
+            <div style="position:relative;height:200px"><canvas id="cDashDonut"></canvas></div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="chart-card">
+            <div class="chart-hdr"><h3>🛒 Purchases vs Dispatch</h3><span class="chart-sub">Monthly units</span></div>
+            <div style="position:relative;height:180px"><canvas id="cDashBar"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-hdr"><h3>🔥 Top Moving Products</h3></div>
+            <div id="topMovers"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =========== INVENTORY =========== -->
+      <div id="page-inventory" class="page">
+        <div class="sec-hdr">
+          <h2>🗃️ Inventory</h2>
+          <span class="sec-sub">1,482 SKUs · 6 outlets</span>
+          <div class="tabs" style="margin-left:auto">
+            <div class="tab active" onclick="invTab(this,'all')">All Items</div>
+            <div class="tab" onclick="invTab(this,'low')">Low Stock</div>
+            <div class="tab" onclick="invTab(this,'out')">Out of Stock</div>
+          </div>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">Total Units</div><div class="kpi-value">96,420</div></div>
+          <div class="kpi-card"><div class="kpi-label">Categories</div><div class="kpi-value">14</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg Turnover</div><div class="kpi-value" style="color:var(--blue)">4.6x</div></div>
+          <div class="kpi-card"><div class="kpi-label">Dead Stock</div><div class="kpi-value" style="color:var(--red)">118</div></div>
+        </div>
+        <div class="table-card">
+          <div class="table-toolbar">
+            <input class="tbl-input" type="text" placeholder="Search by SKU or product name…" oninput="filterInv(this.value)" style="flex:1;min-width:180px"/>
+            <select class="tbl-select" onchange="filterCat(this.value)">
+              <option value="">All Categories</option>
+              <option>Fresh Produce</option><option>Dairy</option><option>Beverages</option>
+              <option>Snacks</option><option>Household</option><option>Personal Care</option>
+              <option>Frozen Foods</option><option>Bakery</option>
+            </select>
+            <select class="tbl-select" onchange="filterOutlet(this.value)">
+              <option value="">All Outlets</option>
+              <option>Anna Nagar</option><option>T.Nagar</option><option>Velachery</option>
+              <option>OMR</option><option>Adyar</option><option>Porur</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>SKU</th><th>Product Name</th><th>Category</th>
+                <th>In Stock</th><th>Reserved</th><th>Available</th>
+                <th>Reorder At</th><th>Stock Level</th><th>Status</th>
+              </tr></thead>
+              <tbody id="invTbody"></tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            <span style="font-size:12px;color:var(--text2)" id="invInfo">Showing 15 of 60</span>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="tb-btn" onclick="invPrev()" id="invPrev">← Prev</button>
+              <span style="font-size:12px;color:var(--text2);padding:0 4px" id="invPageLbl">Page 1</span>
+              <button class="tb-btn" onclick="invNext()" id="invNext">Next →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =========== PURCHASING =========== -->
+      <div id="page-purchasing" class="page">
+        <div class="sec-hdr"><h2>🛒 Purchasing</h2><span class="sec-sub">PO tracking & procurement</span></div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">POs This Month</div><div class="kpi-value">168</div><div class="kpi-delta up">▲ 22 vs last month</div></div>
+          <div class="kpi-card"><div class="kpi-label">Total PO Value</div><div class="kpi-value">₹14.8L</div><div class="kpi-delta up">▲ 11.2%</div></div>
+          <div class="kpi-card"><div class="kpi-label">Pending Delivery</div><div class="kpi-value warn">28</div><div class="kpi-delta warn">Awaiting receipt</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg Lead Time</div><div class="kpi-value" style="color:var(--blue)">2.4d</div><div class="kpi-delta" style="color:var(--text2)">days to delivery</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="chart-card">
+            <div class="chart-hdr"><h3>📊 Monthly Purchase Spend</h3></div>
+            <div style="position:relative;height:180px"><canvas id="cPoSpend"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-hdr"><h3>🏭 Supplier Distribution</h3></div>
+            <div style="position:relative;height:180px"><canvas id="cSupplier"></canvas></div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-toolbar">
+            <span style="font-size:14px;font-weight:700;color:var(--text);flex:1">Purchase Orders</span>
+            <select class="tbl-select" onchange="filterPO(this.value)">
+              <option value="">All Status</option>
+              <option>Delivered</option><option>In Transit</option><option>Pending</option><option>Cancelled</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>PO Number</th><th>Date</th><th>Supplier</th><th>Product</th>
+                <th>Qty Ordered</th><th>Qty Received</th><th>Remaining</th><th>Value</th><th>Status</th>
+              </tr></thead>
+              <tbody id="poTbody"></tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            <span style="font-size:12px;color:var(--text2)" id="poInfo">Showing 15 of 60</span>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="tb-btn" onclick="poPrev()">← Prev</button>
+              <span style="font-size:12px;color:var(--text2);padding:0 4px" id="poPageLbl">Page 1</span>
+              <button class="tb-btn" onclick="poNext()">Next →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =========== STOCK MOVEMENT =========== -->
+      <div id="page-movement" class="page">
+        <div class="sec-hdr"><h2>🔄 Stock Movement</h2><span class="sec-sub">Inward · Outward · Transfers</span></div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">Inward Today</div><div class="kpi-value up">+3,140</div><div class="kpi-delta up">units received</div></div>
+          <div class="kpi-card"><div class="kpi-label">Outward Today</div><div class="kpi-value down">−2,210</div><div class="kpi-delta down">units dispatched</div></div>
+          <div class="kpi-card"><div class="kpi-label">Transfers Today</div><div class="kpi-value" style="color:var(--blue)">22</div><div class="kpi-delta" style="color:var(--text2)">inter-outlet moves</div></div>
+          <div class="kpi-card"><div class="kpi-label">Net Movement</div><div class="kpi-value warn">+930</div><div class="kpi-delta up">net units today</div></div>
+        </div>
+        <div class="chart-card" style="margin-bottom:16px">
+          <div class="chart-hdr"><h3>📉 14-Day Stock Flow — Inward vs Outward</h3></div>
+          <div style="position:relative;height:200px"><canvas id="cFlow"></canvas></div>
+        </div>
+        <div class="table-card">
+          <div class="table-toolbar">
+            <span style="font-size:14px;font-weight:700;color:var(--text);flex:1">Movement Log</span>
+            <div class="tabs">
+              <div class="tab active" onclick="mvTab(this,'All')">All</div>
+              <div class="tab" onclick="mvTab(this,'Inward')">Inward</div>
+              <div class="tab" onclick="mvTab(this,'Outward')">Outward</div>
+              <div class="tab" onclick="mvTab(this,'Transfer')">Transfers</div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>Ref #</th><th>Date & Time</th><th>Product</th><th>Type</th>
+                <th>Qty</th><th>From</th><th>To</th><th>Handled By</th>
+              </tr></thead>
+              <tbody id="mvTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- =========== OUTLETS =========== -->
+      <div id="page-outlets" class="page">
+        <div class="sec-hdr"><h2>📍 Outlet Management</h2><span class="sec-sub">6 active outlets · Chennai region</span></div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">Active Outlets</div><div class="kpi-value">6</div></div>
+          <div class="kpi-card"><div class="kpi-label">Top Performer</div><div class="kpi-value" style="font-size:18px">Anna Nagar</div><div class="kpi-delta up">₹9.4L this month</div></div>
+          <div class="kpi-card"><div class="kpi-label">Total Capacity</div><div class="kpi-value">1.1L</div><div class="kpi-delta" style="color:var(--text2)">units across all</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg Occupancy</div><div class="kpi-value" style="color:var(--blue)">74%</div></div>
+        </div>
+        <div class="outlet-grid" id="outletCards"></div>
+        <div class="chart-card">
+          <div class="chart-hdr"><h3>📦 Stock Distribution by Outlet & Category</h3></div>
+          <div style="position:relative;height:220px"><canvas id="cOutlet"></canvas></div>
+        </div>
+      </div>
+
+      <!-- =========== REPORTS =========== -->
+      <div id="page-reports" class="page">
+        <div class="sec-hdr"><h2>📋 Reports</h2><span class="sec-sub">Manager-level analytics exports</span></div>
+        <div class="grid-3">
+          <div class="report-card">
+            <div class="report-emoji">📦</div>
+            <div class="report-title">Inventory Valuation</div>
+            <div class="report-desc">Full stock value breakdown by category, outlet, and SKU with trend analysis.</div>
+            <div class="report-cta">Generate Report →</div>
+          </div>
+          <div class="report-card">
+            <div class="report-emoji">🔄</div>
+            <div class="report-title">Stock Movement Report</div>
+            <div class="report-desc">Inward, outward, and transfer summaries filterable by date range and outlet.</div>
+            <div class="report-cta">Generate Report →</div>
+          </div>
+          <div class="report-card">
+            <div class="report-emoji">🛒</div>
+            <div class="report-title">Purchase Analysis</div>
+            <div class="report-desc">Supplier-wise spend, lead times, PO compliance rates, and cost trends.</div>
+            <div class="report-cta">Generate Report →</div>
+          </div>
+          <div class="report-card">
+            <div class="report-emoji">📍</div>
+            <div class="report-title">Outlet Performance</div>
+            <div class="report-desc">Sales velocity, occupancy rates, and stock turnover by each outlet location.</div>
+            <div class="report-cta">Generate Report →</div>
+          </div>
+          <div class="report-card">
+            <div class="report-emoji">⚠️</div>
+            <div class="report-title">Low Stock & Reorder</div>
+            <div class="report-desc">Products nearing reorder points with AI-recommended order quantities.</div>
+            <div class="report-cta">Generate Report →</div>
+          </div>
+          <div class="report-card">
+            <div class="report-emoji">📅</div>
+            <div class="report-title">Monthly Manager Summary</div>
+            <div class="report-desc">Consolidated board-ready report covering all KPIs for the period.</div>
+            <div class="report-cta">Generate Report →</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =========== ALERTS =========== -->
+      <div id="page-alerts" class="page">
+        <div class="sec-hdr"><h2>🔔 Alerts</h2><span class="sec-sub">5 active alerts requiring attention</span></div>
+        <div class="alert-card alert-red">
+          <div class="alert-icon-wrap ai-red"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
+          <div style="flex:1">
+            <div class="alert-title">Out of Stock — Amul Gold Milk 1L (SKU-0042)</div>
+            <div class="alert-body">Zero units across all 6 outlets. 18 pending customer orders affected. Last purchase was 8 days ago. Supplier: Amul Dairy. Raise PO immediately.</div>
+            <div class="alert-time">Today, 08:14 AM · Auto-detected</div>
+          </div>
+        </div>
+        <div class="alert-card alert-red">
+          <div class="alert-icon-wrap ai-red"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
+          <div style="flex:1">
+            <div class="alert-title">Out of Stock — Basmati Rice 5kg (SKU-0118)</div>
+            <div class="alert-body">Outlets: Velachery, OMR, Porur report zero units. Last restock was 24 days ago. Supplier lead time is 3 days. Recommended order: 400 bags.</div>
+            <div class="alert-time">Today, 07:50 AM · Auto-detected</div>
+          </div>
+        </div>
+        <div class="alert-card alert-amber">
+          <div class="alert-icon-wrap ai-amber"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div>
+          <div style="flex:1">
+            <div class="alert-title">Low Stock — Parle-G Biscuits 800g (SKU-0089)</div>
+            <div class="alert-body">Current stock: 64 units. Reorder point: 150 units. At current daily sales rate (38 units/day), stock will run out in 1.7 days. Suggested order: 600 units.</div>
+            <div class="alert-time">Today, 06:30 AM · Auto-detected</div>
+          </div>
+        </div>
+        <div class="alert-card alert-amber">
+          <div class="alert-icon-wrap ai-amber"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div>
+          <div style="flex:1">
+            <div class="alert-title">Overdue PO — PO-2025-0341 from AgroFresh Suppliers</div>
+            <div class="alert-body">Expected delivery was 6 days ago. 320 units of Fresh Tomatoes 1kg still pending. Perishable item — contact supplier urgently or source from alternate vendor.</div>
+            <div class="alert-time">Yesterday, 11:00 PM · Manual flag</div>
+          </div>
+        </div>
+        <div class="alert-card alert-amber">
+          <div class="alert-icon-wrap ai-amber"><svg viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div>
+          <div style="flex:1">
+            <div class="alert-title">Expiry Alert — Fresh Orange Juice 1L (SKU-0203)</div>
+            <div class="alert-body">96 units expire within 5 days. Currently in Outlet 2 (T.Nagar) and Outlet 4 (OMR). Consider discount promotion, donate-to-NGO, or inter-outlet transfer to high-traffic outlet.</div>
+            <div class="alert-time">Yesterday, 03:15 PM · Expiry tracker</div>
+          </div>
+        </div>
+        <div class="alert-card alert-green">
+          <div class="alert-icon-wrap ai-green"><svg viewBox="0 0 24 24"><path d="M9 16.2l-3.5-3.5-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg></div>
+          <div style="flex:1">
+            <div class="alert-title">PO Delivered — PO-2025-0338 · 1,200 units received</div>
+            <div class="alert-body">Delivery from NestleFoods India completed successfully. 1,200 units of KitKat 4-Finger put into inventory across 4 outlets. Stock levels normalized.</div>
+            <div class="alert-time">Today, 10:42 AM · GRN #GRN-2025-0488</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ============================================================
+//  DATA
+// ============================================================
+var PRODUCTS = [
+  'Amul Gold Milk 1L','Parle-G Biscuits 800g','Basmati Rice 5kg','KitKat 4-Finger 50g',
+  'Colgate MaxFresh 150g','Sunfeast Dark Fantasy','Tropicana Orange 1L','Maggi 2-Min Noodles',
+  'Dove Body Wash 500ml','Tata Salt 1kg','Fortune Sunflower Oil 1L','Haldiram Bhujia 400g',
+  'Head & Shoulders 340ml','Britannia Bourbon 150g','Real Juice Mango 1L','Vim Dishwash Bar',
+  'Dettol Hand Wash 200ml','Amul Butter 500g','Kurkure Masala 105g','Bournvita 500g'
+];
+var CATS = [
+  'Dairy','Snacks','Staples','Snacks','Personal Care','Snacks','Beverages','Instant Food',
+  'Personal Care','Staples','Staples','Snacks','Personal Care','Snacks','Beverages','Household',
+  'Personal Care','Dairy','Snacks','Beverages'
+];
+var SUPPLIERS = ['Amul Dairy','Parle Products','ITC Foods','NestleFoods India','AgroFresh Suppliers','HUL Distributors'];
+var OUTLETS = ['Anna Nagar','T.Nagar','Velachery','OMR','Adyar','Porur'];
+var STAFF = ['Rajan M.','Priya S.','Anbu K.','Divya R.','Karthik V.','Meena P.'];
+
+function rnd(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function fmtInr(n){
+  if(n>=100000) return '₹'+(n/100000).toFixed(1)+'L';
+  if(n>=1000) return '₹'+(n/1000).toFixed(1)+'K';
+  return '₹'+n;
+}
+function fmtNum(n){ return n.toLocaleString('en-IN'); }
+
+// ============================================================
+//  LOGIN
+// ============================================================
+var currentRole = 'Store Manager';
+function setRole(el, role){
+  document.querySelectorAll('.role-chip').forEach(function(e){ e.classList.remove('active'); });
+  el.classList.add('active');
+  currentRole = role;
+}
+function doLogin(){
+  var e = document.getElementById('loginEmail').value.trim();
+  var p = document.getElementById('loginPass').value.trim();
+  if(e === 'manager@freshmart.in' && p === 'freshmart2025'){
+    var lp = document.getElementById('loginPage');
+    lp.style.opacity = '0';
+    setTimeout(function(){
+      lp.style.display = 'none';
+      document.getElementById('app').classList.add('visible');
+      document.getElementById('sbName').textContent = currentRole;
+      document.getElementById('sbRole').textContent = currentRole;
+      document.getElementById('sbAv').textContent = currentRole.split(' ').map(function(w){ return w[0]; }).join('');
+      buildAllData();
+      initAllCharts();
+    }, 400);
+  } else {
+    var err = document.getElementById('loginErr');
+    err.style.display = 'block';
+    setTimeout(function(){ err.style.display = 'none'; }, 3500);
+  }
+}
+document.getElementById('loginPass').addEventListener('keydown', function(e){
+  if(e.key === 'Enter') doLogin();
+});
+function doLogout(){
+  document.getElementById('app').classList.remove('visible');
+  var lp = document.getElementById('loginPage');
+  lp.style.display = 'flex';
+  lp.style.opacity = '1';
+}
+
+// ============================================================
+//  NAVIGATION
+// ============================================================
+var pageTitles = {
+  dashboard:'🌿 Dashboard', inventory:'🗃️ Inventory', purchasing:'🛒 Purchasing',
+  movement:'🔄 Stock Movement', outlets:'📍 Outlets', reports:'📋 Reports', alerts:'🔔 Alerts'
+};
+function goTo(page, el){
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  var pg = document.getElementById('page-'+page);
+  if(pg) pg.classList.add('active');
+  if(el) el.classList.add('active');
+  document.getElementById('pageTitle').textContent = pageTitles[page] || page;
+}
+
+// ============================================================
+//  INVENTORY DATA
+// ============================================================
+var invAll = [], invFiltered = [], invPage = 0, invPer = 15;
+function buildInvData(){
+  invAll = [];
+  for(var i = 0; i < 60; i++){
+    var stock = rnd(0, 1400);
+    var reorder = rnd(60, 220);
+    var status = stock === 0 ? 'Out of Stock' : stock < reorder ? 'Low Stock' : 'In Stock';
+    invAll.push({
+      sku: 'FM-' + String(i+1).padStart(4,'0'),
+      name: PRODUCTS[i % PRODUCTS.length],
+      cat: CATS[i % CATS.length],
+      stock: stock,
+      reserved: rnd(0, Math.min(stock, 80)),
+      reorder: reorder,
+      status: status
+    });
+  }
+  invFiltered = invAll.slice();
+}
+function filterInv(q){
+  q = q.toLowerCase();
+  invFiltered = invAll.filter(function(r){
+    return r.sku.toLowerCase().indexOf(q) !== -1 || r.name.toLowerCase().indexOf(q) !== -1;
+  });
+  invPage = 0;
+  renderInv();
+}
+function filterCat(c){
+  invFiltered = c ? invAll.filter(function(r){ return r.cat === c; }) : invAll.slice();
+  invPage = 0;
+  renderInv();
+}
+function filterOutlet(o){ invPage = 0; renderInv(); }
+function invTab(el, type){
+  document.querySelectorAll('#page-inventory .tab').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  if(type === 'low') invFiltered = invAll.filter(function(r){ return r.status === 'Low Stock'; });
+  else if(type === 'out') invFiltered = invAll.filter(function(r){ return r.status === 'Out of Stock'; });
+  else invFiltered = invAll.slice();
+  invPage = 0;
+  renderInv();
+}
+function renderInv(){
+  var rows = invFiltered.slice(invPage * invPer, (invPage+1) * invPer);
+  var html = '';
+  for(var i = 0; i < rows.length; i++){
+    var row = rows[i];
+    var avail = row.stock - row.reserved;
+    var pct = Math.min(100, Math.round((row.stock / (row.reorder * 4)) * 100));
+    var barColor = row.status === 'Out of Stock' ? '#c0392b' : row.status === 'Low Stock' ? '#c47d0e' : '#2d8a4e';
+    var badgeClass = row.status === 'Out of Stock' ? 'b-red' : row.status === 'Low Stock' ? 'b-amber' : 'b-green';
+    html += '<tr>';
+    html += '<td class="mono">' + row.sku + '</td>';
+    html += '<td style="font-weight:600">' + row.name + '</td>';
+    html += '<td><span class="badge b-blue">' + row.cat + '</span></td>';
+    html += '<td>' + fmtNum(row.stock) + '</td>';
+    html += '<td style="color:var(--text2)">' + fmtNum(row.reserved) + '</td>';
+    html += '<td style="font-weight:600">' + fmtNum(avail) + '</td>';
+    html += '<td class="mono">' + row.reorder + '</td>';
+    html += '<td><div class="prog-wrap"><div class="prog-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div></td>';
+    html += '<td><span class="badge ' + badgeClass + '">' + row.status + '</span></td>';
+    html += '</tr>';
+  }
+  document.getElementById('invTbody').innerHTML = html;
+  var total = invFiltered.length;
+  document.getElementById('invInfo').textContent = 'Showing ' + Math.min((invPage+1)*invPer, total) + ' of ' + total;
+  document.getElementById('invPageLbl').textContent = 'Page ' + (invPage+1);
+}
+function invPrev(){ if(invPage > 0){ invPage--; renderInv(); } }
+function invNext(){ if((invPage+1)*invPer < invFiltered.length){ invPage++; renderInv(); } }
+
+// ============================================================
+//  PURCHASE ORDER DATA
+// ============================================================
+var poAll = [], poFiltered = [], poPage = 0, poPer = 15;
+function buildPOData(){
+  poAll = [];
+  var statuses = ['Delivered','In Transit','Pending','Cancelled'];
+  for(var i = 0; i < 60; i++){
+    var ordered = rnd(60, 600);
+    var st = statuses[i % 4];
+    var received = st === 'Delivered' ? ordered : st === 'Cancelled' ? 0 : rnd(0, ordered - 10);
+    poAll.push({
+      po: 'PO-2025-' + String(i+301).padStart(4,'0'),
+      date: '2025-0' + rnd(7,9) + '-' + String(rnd(1,28)).padStart(2,'0'),
+      supplier: SUPPLIERS[i % SUPPLIERS.length],
+      product: PRODUCTS[i % PRODUCTS.length],
+      ordered: ordered,
+      received: received,
+      remaining: ordered - received,
+      value: rnd(8000, 95000),
+      status: st
+    });
+  }
+  poFiltered = poAll.slice();
+}
+function filterPO(status){
+  poFiltered = status ? poAll.filter(function(r){ return r.status === status; }) : poAll.slice();
+  poPage = 0;
+  renderPO();
+}
+function renderPO(){
+  var rows = poFiltered.slice(poPage * poPer, (poPage+1) * poPer);
+  var html = '';
+  for(var i = 0; i < rows.length; i++){
+    var r = rows[i];
+    var badgeClass = r.status === 'Delivered' ? 'b-green' : r.status === 'In Transit' ? 'b-blue' : r.status === 'Pending' ? 'b-amber' : 'b-red';
+    var remColor = r.remaining > 0 ? 'color:var(--amber);font-weight:600' : 'color:var(--green);font-weight:600';
+    html += '<tr>';
+    html += '<td class="mono">' + r.po + '</td>';
+    html += '<td class="mono">' + r.date + '</td>';
+    html += '<td>' + r.supplier + '</td>';
+    html += '<td>' + r.product.substring(0, 22) + (r.product.length > 22 ? '…' : '') + '</td>';
+    html += '<td>' + fmtNum(r.ordered) + '</td>';
+    html += '<td>' + fmtNum(r.received) + '</td>';
+    html += '<td style="' + remColor + '">' + fmtNum(r.remaining) + '</td>';
+    html += '<td style="font-weight:600">' + fmtInr(r.value) + '</td>';
+    html += '<td><span class="badge ' + badgeClass + '">' + r.status + '</span></td>';
+    html += '</tr>';
+  }
+  document.getElementById('poTbody').innerHTML = html;
+  document.getElementById('poInfo').textContent = 'Showing ' + Math.min((poPage+1)*poPer, poFiltered.length) + ' of ' + poFiltered.length;
+  document.getElementById('poPageLbl').textContent = 'Page ' + (poPage+1);
+}
+function poPrev(){ if(poPage > 0){ poPage--; renderPO(); } }
+function poNext(){ if((poPage+1)*poPer < poFiltered.length){ poPage++; renderPO(); } }
+
+// ============================================================
+//  MOVEMENT DATA
+// ============================================================
+var mvAll = [];
+function buildMvData(){
+  mvAll = [];
+  var types = ['Inward','Outward','Transfer'];
+  for(var i = 0; i < 50; i++){
+    var tp = types[i % 3];
+    var from = tp === 'Outward' ? OUTLETS[i % 6] : tp === 'Transfer' ? OUTLETS[i % 6] : 'Warehouse';
+    var to   = tp === 'Inward'  ? OUTLETS[i % 6] : tp === 'Transfer' ? OUTLETS[(i+2) % 6] : 'Customer';
+    mvAll.push({
+      ref: 'MV-' + String(i+1001),
+      dt:  '2025-0' + rnd(7,9) + '-' + String(rnd(1,28)).padStart(2,'0') + ' ' + String(rnd(8,20)).padStart(2,'0') + ':' + String(rnd(0,59)).padStart(2,'0'),
+      prod: PRODUCTS[i % PRODUCTS.length],
+      type: tp,
+      qty:  rnd(12, 350),
+      from: from,
+      to:   to,
+      by:   STAFF[i % STAFF.length]
+    });
+  }
+}
+function renderMv(data){
+  var html = '';
+  for(var i = 0; i < data.length; i++){
+    var r = data[i];
+    var badgeClass = r.type === 'Inward' ? 'b-green' : r.type === 'Outward' ? 'b-red' : 'b-blue';
+    html += '<tr>';
+    html += '<td class="mono">' + r.ref + '</td>';
+    html += '<td class="mono" style="font-size:11px">' + r.dt + '</td>';
+    html += '<td>' + r.prod.substring(0,22) + (r.prod.length>22?'…':'') + '</td>';
+    html += '<td><span class="badge ' + badgeClass + '">' + r.type + '</span></td>';
+    html += '<td style="font-weight:600">' + fmtNum(r.qty) + '</td>';
+    html += '<td style="font-size:12px;color:var(--text2)">' + r.from + '</td>';
+    html += '<td style="font-size:12px;color:var(--text2)">' + r.to + '</td>';
+    html += '<td>' + r.by + '</td>';
+    html += '</tr>';
+  }
+  document.getElementById('mvTbody').innerHTML = html;
+}
+function mvTab(el, type){
+  document.querySelectorAll('#page-movement .tab').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  var filtered = type === 'All' ? mvAll : mvAll.filter(function(r){ return r.type === type; });
+  renderMv(filtered);
+}
+
+// ============================================================
+//  OUTLETS
+// ============================================================
+var outletColors = ['#3a7d44','#2563ab','#c47d0e','#6d3fa0','#d4620a','#c0392b'];
+function buildOutlets(){
+  var html = '';
+  for(var i = 0; i < OUTLETS.length; i++){
+    var cap = rnd(12000, 22000);
+    var occ = rnd(58, 92);
+    var stock = Math.round(cap * occ / 100);
+    var sales = rnd(250000, 940000);
+    var barColor = outletColors[i];
+    html += '<div class="outlet-card">';
+    html += '<div class="outlet-header">';
+    html += '<div>';
+    html += '<div class="outlet-name">' + OUTLETS[i] + '</div>';
+    html += '<div class="outlet-loc">📍 Chennai, Tamil Nadu</div>';
+    html += '</div>';
+    html += '<div class="outlet-num" style="background:' + barColor + '22;color:' + barColor + '">' + String(i+1) + '</div>';
+    html += '</div>';
+    html += '<div class="outlet-stat"><span>Capacity</span><span>' + fmtNum(cap) + ' units</span></div>';
+    html += '<div class="outlet-stat"><span>In Stock</span><span>' + fmtNum(stock) + ' units</span></div>';
+    html += '<div class="outlet-stat"><span>Occupancy</span><span style="color:' + (occ > 85 ? 'var(--amber)' : 'var(--green)') + '">' + occ + '%</span></div>';
+    html += '<div class="prog-wrap"><div class="prog-fill" style="width:' + occ + '%;background:' + barColor + '"></div></div>';
+    html += '<div class="outlet-footer">';
+    html += '<span style="font-size:12px;color:var(--text2)">Monthly Sales</span>';
+    html += '<span style="font-size:15px;font-weight:700;color:' + barColor + '">' + fmtInr(sales) + '</span>';
+    html += '</div>';
+    html += '</div>';
+  }
+  document.getElementById('outletCards').innerHTML = html;
+}
+
+// ============================================================
+//  CHARTS
+// ============================================================
+var chartInstances = {};
+function destroyChart(id){
+  if(chartInstances[id]){ chartInstances[id].destroy(); delete chartInstances[id]; }
+}
+function mkChart(id, config){
+  destroyChart(id);
+  chartInstances[id] = new Chart(document.getElementById(id), config);
+}
+
+var MONTHS = ['Sep','Oct','Nov','Dec','Jan','Apr'];
+var DAYS14 = ['D1','D2','D3','D4','D5','D6','D7','D8','D9','D10','D11','D12','D13','D14'];
+
+var CHART_COLORS = {
+  green: '#2d8a4e', greenA: 'rgba(45,138,78,0.12)',
+  blue:  '#2563ab', blueA:  'rgba(37,99,171,0.12)',
+  amber: '#c47d0e', amberA: 'rgba(196,125,14,0.12)',
+  red:   '#c0392b', redA:   'rgba(192,57,43,0.12)',
+  purple:'#6d3fa0', orange: '#d4620a',
+  ticks: '#9ab088', grid:   'rgba(90,112,80,0.08)'
+};
+
+function initAllCharts(){
+  // Dashboard Line
+  mkChart('cDashLine', {
+    type: 'line',
+    data: {
+      labels: MONTHS,
+      datasets: [{
+        data: [3800000,4100000,4400000,4600000,4900000,5240000],
+        borderColor: CHART_COLORS.green,
+        backgroundColor: CHART_COLORS.greenA,
+        tension: 0.4, borderWidth: 2.5, pointRadius: 4,
+        pointBackgroundColor: CHART_COLORS.green, fill: true
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.ticks, font: { size: 11 } } },
+        y: { grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.ticks, font: { size: 11 },
+          callback: function(v){ return '₹'+(v/100000).toFixed(0)+'L'; }
+        }}
+      }
+    }
+  });
+
+  // Dashboard Donut
+  mkChart('cDashDonut', {
+    type: 'doughnut',
+    data: {
+      labels: ['Dairy','Snacks','Staples','Beverages','Personal Care','Household'],
+      datasets: [{
+        data: [24,20,18,16,14,8],
+        backgroundColor: [CHART_COLORS.green, CHART_COLORS.amber, CHART_COLORS.blue,
+          CHART_COLORS.orange, CHART_COLORS.purple, CHART_COLORS.red],
+        borderWidth: 0, hoverOffset: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '66%',
+      plugins: {
+        legend: { position: 'right', labels: { color: CHART_COLORS.ticks, font: { size: 11 }, boxWidth: 10, padding: 8 } }
+      }
+    }
+  });
+
+  // Dashboard Bar
+  mkChart('cDashBar', {
+    type: 'bar',
+    data: {
+      labels: MONTHS,
+      datasets: [
+        { label: 'Purchased', data: [1400,1700,1900,1700,2100,2000], backgroundColor: 'rgba(37,99,171,0.65)', borderRadius: 4 },
+        { label: 'Dispatched', data: [1100,1500,1700,1500,1900,1850], backgroundColor: 'rgba(45,138,78,0.6)', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: CHART_COLORS.ticks, font: { size: 11 }, boxWidth: 10 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: CHART_COLORS.ticks, font: { size: 11 } } },
+        y: { grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.ticks, font: { size: 11 } } }
+      }
+    }
+  });
+
+  // Top movers
+  var movers = ['Amul Gold Milk 1L','Parle-G Biscuits','Tata Salt 1kg','Colgate MaxFresh','Maggi Noodles'];
+  var pcts = [92, 84, 76, 68, 58];
+  var html = '';
+  for(var i = 0; i < movers.length; i++){
+    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">';
+    html += '<span style="font-size:12px;color:var(--text2);width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + movers[i] + '</span>';
+    html += '<div class="prog-wrap" style="flex:1"><div class="prog-fill" style="width:' + pcts[i] + '%;background:var(--green)"></div></div>';
+    html += '<span style="font-size:12px;font-family:DM Mono,monospace;color:var(--green);width:32px;text-align:right">' + pcts[i] + '%</span>';
+    html += '</div>';
+  }
+  document.getElementById('topMovers').innerHTML = html;
+
+  // PO Spend
+  mkChart('cPoSpend', {
+    type: 'bar',
+    data: {
+      labels: MONTHS,
+      datasets: [{ data: [940000,1100000,1280000,1150000,1420000,1480000],
+        backgroundColor: 'rgba(37,99,171,0.6)', borderRadius: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: CHART_COLORS.ticks, font: { size: 11 } } },
+        y: { grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.ticks, font: { size: 11 },
+          callback: function(v){ return '₹'+(v/100000).toFixed(0)+'L'; }
+        }}
+      }
+    }
+  });
+
+  // Supplier Donut
+  mkChart('cSupplier', {
+    type: 'doughnut',
+    data: {
+      labels: SUPPLIERS,
+      datasets: [{
+        data: [28,22,18,14,11,7],
+        backgroundColor: [CHART_COLORS.green, CHART_COLORS.blue, CHART_COLORS.amber,
+          CHART_COLORS.purple, CHART_COLORS.orange, CHART_COLORS.red],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: { legend: { position: 'right', labels: { color: CHART_COLORS.ticks, font: { size: 11 }, boxWidth: 10 } } }
+    }
+  });
+
+  // Flow Chart
+  mkChart('cFlow', {
+    type: 'bar',
+    data: {
+      labels: DAYS14,
+      datasets: [
+        { label: 'Inward',  data: [1800,2200,1600,2800,2100,3100,1900,2600,2900,1700,3200,2400,2100,3140],
+          backgroundColor: 'rgba(45,138,78,0.65)', borderRadius: 3 },
+        { label: 'Outward', data: [1400,1900,1300,2200,1800,2500,1600,2100,2400,1400,2700,2000,1800,2210],
+          backgroundColor: 'rgba(192,57,43,0.5)', borderRadius: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: CHART_COLORS.ticks, font: { size: 11 }, boxWidth: 10 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: CHART_COLORS.ticks, font: { size: 10 } } },
+        y: { grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.ticks, font: { size: 11 } } }
+      }
+    }
+  });
+
+  // Outlet Stacked Bar
+  mkChart('cOutlet', {
+    type: 'bar',
+    data: {
+      labels: OUTLETS,
+      datasets: [
+        { label: 'Dairy',    data: OUTLETS.map(function(){ return rnd(800,3500); }),  backgroundColor: 'rgba(45,138,78,0.75)', borderRadius: 3 },
+        { label: 'Snacks',   data: OUTLETS.map(function(){ return rnd(600,2800); }),  backgroundColor: 'rgba(196,125,14,0.7)', borderRadius: 3 },
+        { label: 'Staples',  data: OUTLETS.map(function(){ return rnd(400,2200); }),  backgroundColor: 'rgba(37,99,171,0.65)', borderRadius: 3 },
+        { label: 'Beverages',data: OUTLETS.map(function(){ return rnd(300,1800); }),  backgroundColor: 'rgba(109,63,160,0.6)', borderRadius: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: CHART_COLORS.ticks, font: { size: 11 }, boxWidth: 10 } } },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { color: CHART_COLORS.ticks, font: { size: 11 } } },
+        y: { stacked: true, grid: { color: CHART_COLORS.grid }, ticks: { color: CHART_COLORS.ticks, font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+// ============================================================
+//  INIT ALL DATA
+// ============================================================
+function buildAllData(){
+  buildInvData();
+  buildPOData();
+  buildMvData();
+  renderInv();
+  renderPO();
+  renderMv(mvAll);
+  buildOutlets();
+}
+
+function updateKPIs(period){ /* demo — values could vary by period */ }
+function doExport(){
+  alert('Exporting data to CSV…\nIn production, this connects to your IBM Cognos dataset.');
+}
+</script>
+</body>
+</html>
